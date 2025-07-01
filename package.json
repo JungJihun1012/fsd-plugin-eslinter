@@ -1,0 +1,22 @@
+{
+  "name": "fsd-eslinter",
+  "version": "1.0.0",
+  "main": "eslint.config.js",
+  "type": "module",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^24.0.8",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.0",
+    "typescript": "^5.8.3"
+  }
+}
