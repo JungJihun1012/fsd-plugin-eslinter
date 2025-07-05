@@ -21,8 +21,8 @@ const rule: Rule.RuleModule = {
       recommended: false
     },
     messages: {
+      noRelative: "절대 경로(@alias 사용)로 import하세요. 현재 경로: '{{path}}'",
       wrongLayer: "'{{importedLayer}}' 레이어는 현재 레이어 '{{currentLayer}}'에서 import할 수 없습니다.",
-      noRelative: "절대 경로(@alias 사용)로 import하세요. 현재 경로: '{{path}}'"
     },
     schema: []
   },
