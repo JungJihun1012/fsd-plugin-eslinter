@@ -53,19 +53,15 @@ const rule: Rule.RuleModule = {
       const [importedLayerRaw] = importPath.split("/");
       const importedLayer = importedLayerRaw.replace(/^@/, "");
 
-      if (layers.includes(currentLayer) && layers.includes(importedLayer)) {
-        const currentIdx = layers.indexOf(currentLayer);
-        const importIdx = layers.indexOf(importedLayer);
-        if (importIdx > currentIdx) {
+      if (
+        [currentLayer, importedLayer].every(layer => layers.includes(layer)) &&
+        layers.indexOf(currentLayer) > layers.indexOf(importedLayer)
+        ) {
           context.report({
             node,
             messageId: "wrongLayer",
-            data: {
-              currentLayer,
-              importedLayer
-            }
+            data: { currentLayer, importedLayer }
           });
-        }
       }
     }
   };
