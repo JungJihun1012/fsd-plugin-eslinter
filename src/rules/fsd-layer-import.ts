@@ -38,33 +38,34 @@ const rule: Rule.RuleModule = {
 
   return {
     ImportDeclaration(node) {
-      // 이하 기존 코드 유지
       const importPath = (node.source as any).value as string;
-
+  
       if (isRelative(importPath)) {
         context.report({
           node,
           messageId: "noRelative",
-          data: { path: importPath }
+          data: { path: importPath },
         });
         return;
       }
-
+  
       const [importedLayerRaw] = importPath.split("/");
       const importedLayer = importedLayerRaw.replace(/^@/, "");
-
-      if (
-        [currentLayer, importedLayer].every(layer => layers.includes(layer)) &&
-        layers.indexOf(currentLayer) > layers.indexOf(importedLayer)
-        ) {
-          context.report({
-            node,
-            messageId: "wrongLayer",
-            data: { currentLayer, importedLayer }
-          });
+  
+      const isSameDomainImport = [currentLayer, importedLayer].every(layer => layers.includes(layer));
+  
+      const isWrongDirection = layers.indexOf(currentLayer) > layers.indexOf(importedLayer);
+  
+      if (isSameDomainImport && isWrongDirection) {
+        context.report({
+          node,
+          messageId: "wrongLayer",
+          data: { currentLayer, importedLayer },
+        });
       }
-    }
+    },
   };
+  
 }
 
 };
