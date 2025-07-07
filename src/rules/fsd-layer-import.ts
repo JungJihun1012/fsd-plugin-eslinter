@@ -1,7 +1,11 @@
 import path from "path";
+import fs from "fs";
 import { Rule } from "eslint";
 
-const layers = ["shared", "entities", "features", "widgets", "pages", "app"];
+const configPath = path.resolve(__dirname, "../../fsd-config.json");
+const configRaw = fs.readFileSync(configPath, "utf-8");
+const config = JSON.parse(configRaw);
+const layers: string[] = config.layers;
 
 function getLayer(filepath: string): string | null {
   const parts = filepath.split(path.sep);
@@ -32,9 +36,7 @@ const rule: Rule.RuleModule = {
   const currentLayer = getLayer(filename);
 
   // currentLayer가 null이면 검사 안 함
-  if (!currentLayer) {
-    return {};
-  }
+  if (!currentLayer) return {};
 
   return {
     ImportDeclaration(node) {
@@ -71,3 +73,5 @@ const rule: Rule.RuleModule = {
 };
 
 export default rule;
+
+// 동적으로 외부 파일을 참조 계층 정리

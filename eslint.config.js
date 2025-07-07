@@ -15,7 +15,9 @@ export default [
       fsd: pluginFsd
     },
     rules: {
-      "fsd/fsd-layer-import": "error"
+      "fsd/fsd-layer-import": ["error", {
+        cocnfigPath: "./fsd-config.json"
+      }]
     }
   }
 ];
