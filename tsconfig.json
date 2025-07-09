@@ -7,7 +7,11 @@
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "strict": true,
-    "declaration": true
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "#config": ["fsd-config.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "fsd-config.js"]
 }

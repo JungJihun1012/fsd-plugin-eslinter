@@ -1,11 +1,16 @@
 import path from "path";
 import fs from "fs";
 import { Rule } from "eslint";
+import { fileURLToPath } from "url";
+import { fsdConfig } from '../../fsd-config.js';
+
+const __fileName = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__fileName);
 
 const configPath = path.resolve(__dirname, "../../fsd-config.json");
 const configRaw = fs.readFileSync(configPath, "utf-8");
 const config = JSON.parse(configRaw);
-const layers: string[] = config.layers;
+const layers = fsdConfig.layers;
 
 function getLayer(filepath: string): string | null {
   const parts = filepath.split(path.sep);
