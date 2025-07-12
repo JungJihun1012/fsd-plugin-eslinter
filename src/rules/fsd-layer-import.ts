@@ -1,82 +1,80 @@
-import path from "path";
-import fs from "fs";
 import { Rule } from "eslint";
-import { fileURLToPath } from "url";
-import { fsdConfig } from '../../fsd-config.js';
+import * as path from "path";
 
-const __fileName = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__fileName);
+const layerAccessRules = {
+  app: ["pages", "widgets", "features", "entities", "shared"],
+  pages: ["widgets", "features", "entities", "shared"],
+  widgets: ["features", "entities", "shared"],
+  features: ["entities", "shared"],
+  entities: ["shared"],
+  shared: [],
+} as const;
 
-const configPath = path.resolve(__dirname, "../../fsd-config.json");
-const configRaw = fs.readFileSync(configPath, "utf-8");
-const config = JSON.parse(configRaw);
-const layers = fsdConfig.layers;
+const layers = Object.keys(layerAccessRules);
 
-function getLayer(filepath: string): string | null {
-  const parts = filepath.split(path.sep);
-  const srcIndex = parts.indexOf("src");
-  return srcIndex >= 0 && parts.length > srcIndex + 1 ? parts[srcIndex + 1] : null;
+function isRelative(value: string) {
+  return value.startsWith("./") || value.startsWith("../");
 }
 
-function isRelative(pathValue: string): boolean {
-  return pathValue.startsWith(".");
+function getLayerFromPath(filepath: string): string | null {
+  const normalizedPath = filepath.split(path.sep);
+  const srcIndex = normalizedPath.indexOf("src");
+  return srcIndex !== -1 ? normalizedPath[srcIndex + 1] : null;
 }
 
-const rule: Rule.RuleModule = {
+function getImportLayer(importPath: string): string | null {
+  const parts = importPath.replace(/^@/, "").split("/");
+  return parts.length > 0 ? parts[0] : null;
+}
+
+export const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
-      description: "FSD 계층 위반 import 방지",
-      recommended: false
+      description: "Disallow invalid layer imports",
+      recommended: false,
     },
     messages: {
-      noRelative: "절대 경로(@alias 사용)로 import하세요. 현재 경로: '{{path}}'",
-      wrongLayer: "'{{importedLayer}}' 레이어는 현재 레이어 '{{currentLayer}}'에서 import할 수 없습니다.",
+      noRelative: "상대 경로 import는 허용되지 않습니다: '{{ path }}'",
+      invalidImport: "레이어 '{{ from }}'는 '{{ to }}'를 import할 수 없습니다.",
     },
-    schema: []
+    schema: [],
   },
 
   create(context) {
-  const filename = context.getFilename();
-  const currentLayer = getLayer(filename);
+    return {
+      ImportDeclaration(node) {
+        const importPath = (node.source as any).value as string;
 
-  // currentLayer가 null이면 검사 안 함
-  if (!currentLayer) return {};
+        if (isRelative(importPath)) {
+          context.report({
+            node,
+            messageId: "noRelative",
+            data: { path: importPath },
+          });
+          return;
+        }
 
-  return {
-    ImportDeclaration(node) {
-      const importPath = (node.source as any).value as string;
-  
-      if (isRelative(importPath)) {
-        context.report({
-          node,
-          messageId: "noRelative",
-          data: { path: importPath },
-        });
-        return;
-      }
-  
-      const [importedLayerRaw] = importPath.split("/");
-      const importedLayer = importedLayerRaw.replace(/^@/, "");
-  
-      const isSameDomainImport = [currentLayer, importedLayer].every(layer => layers.includes(layer));
-  
-      const isWrongDirection = layers.indexOf(currentLayer) > layers.indexOf(importedLayer);
-  
-      if (isSameDomainImport && isWrongDirection) {
-        context.report({
-          node,
-          messageId: "wrongLayer",
-          data: { currentLayer, importedLayer },
-        });
-      }
-    },
-  };
-  
-}
+        const currentFilePath = context.getFilename();
+        const currentLayer = getLayerFromPath(currentFilePath);
+        const importLayer = getImportLayer(importPath);
 
+        if (!currentLayer || !importLayer) return;
+        if (!layers.includes(currentLayer) || !layers.includes(importLayer)) return;
+
+        const allowed = layerAccessRules[currentLayer as keyof typeof layerAccessRules];
+        if (!allowed.includes(importLayer)) {
+          context.report({
+            node,
+            messageId: "invalidImport",
+            data: {
+              from: currentLayer,
+              to: importLayer,
+            },
+          });
+        }
+      },
+    };
+  },
 };
 
-export default rule;
-
-// 동적으로 외부 파일을 참조 계층 정리

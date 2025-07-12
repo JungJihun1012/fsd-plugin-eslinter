@@ -1,7 +1,7 @@
-import fsdLayerImport from "./rules/fsd-layer-import.js";
+import {rule} from "./rules/fsd-layer-import";
 
 export default {
   rules: {
-    "fsd-layer-import": fsdLayerImport,
+    "no-invalid-layer-imports": rule,
   },
 };
