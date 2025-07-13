@@ -1,7 +1,11 @@
 import { Rule } from "eslint";
 import * as path from "path";
 
-const layerAccessRules = {
+interface LayerAccessRules {
+  [key: string] : string[]
+}
+
+const layerAccessRules: LayerAccessRules = {
   app: ["pages", "widgets", "features", "entities", "shared"],
   pages: ["widgets", "features", "entities", "shared"],
   widgets: ["features", "entities", "shared"],
@@ -62,7 +66,7 @@ export const rule: Rule.RuleModule = {
         if (!currentLayer || !importLayer) return;
         if (!layers.includes(currentLayer) || !layers.includes(importLayer)) return;
 
-        const allowed = layerAccessRules[currentLayer as keyof typeof layerAccessRules];
+        const allowed = layerAccessRules[currentLayer];
         if (!allowed.includes(importLayer)) {
           context.report({
             node,

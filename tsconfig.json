@@ -13,5 +13,9 @@
       "#config": ["fsd-config.ts"]
     }
   },
-  "include": ["src", "fsd-config.js"]
+  "include": [
+    "src/**/*",
+    "fsd-config.js",
+    "types/**/*.d.ts"
+  ]
 }

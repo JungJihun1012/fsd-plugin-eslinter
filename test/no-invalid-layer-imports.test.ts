@@ -2,7 +2,11 @@ import { RuleTester } from "eslint";
 import { rule } from "../src/rules/fsd-layer-import";
 
 const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2020, sourceType: "module" },
+  parserOptions: {
+     ecmaVersion: 2020, 
+     sourceType: "module",
+     jsx: true 
+    },
 });
 
 ruleTester.run("no-invalid-layer-imports", rule, {

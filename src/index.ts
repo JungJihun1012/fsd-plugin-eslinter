@@ -1,4 +1,4 @@
-import {rule} from "./rules/fsd-layer-import";
+import {rule} from "./rules/fsd-layer-import.js";
 
 export default {
   rules: {
