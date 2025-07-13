@@ -1,9 +1,7 @@
 import { Rule } from "eslint";
 import * as path from "path";
+import { LayerAccessRules } from "types/types";
 
-interface LayerAccessRules {
-  [key: string] : string[]
-}
 
 const layerAccessRules: LayerAccessRules = {
   app: ["pages", "widgets", "features", "entities", "shared"],
@@ -12,7 +10,7 @@ const layerAccessRules: LayerAccessRules = {
   features: ["entities", "shared"],
   entities: ["shared"],
   shared: [],
-} as const;
+};
 
 const layers = Object.keys(layerAccessRules);
 

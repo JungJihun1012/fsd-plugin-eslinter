@@ -7,3 +7,7 @@ declare module "eslint" {
         }
     }
 }
+
+interface LayerAccessRules {
+    [key: string] : string[]
+}
