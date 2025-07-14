@@ -1,9 +1,8 @@
 import { Rule } from "eslint";
-import * as path from "path";
-import { LayerAccessRules } from "types/types";
+import { LayerValidator } from "src/utils/LayerValidator";
 
 
-const layerAccessRules: LayerAccessRules = {
+const layerAccessRules = {
   app: ["pages", "widgets", "features", "entities", "shared"],
   pages: ["widgets", "features", "entities", "shared"],
   widgets: ["features", "entities", "shared"],
@@ -12,22 +11,7 @@ const layerAccessRules: LayerAccessRules = {
   shared: [],
 };
 
-const layers = Object.keys(layerAccessRules);
-
-function isRelative(value: string) {
-  return value.startsWith("./") || value.startsWith("../");
-}
-
-function getLayerFromPath(filepath: string): string | null {
-  const normalizedPath = filepath.split(path.sep);
-  const srcIndex = normalizedPath.indexOf("src");
-  return srcIndex !== -1 ? normalizedPath[srcIndex + 1] : null;
-}
-
-function getImportLayer(importPath: string): string | null {
-  const parts = importPath.replace(/^@/, "").split("/");
-  return parts.length > 0 ? parts[0] : null;
-}
+const validator = new LayerValidator(layerAccessRules);
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -48,7 +32,7 @@ export const rule: Rule.RuleModule = {
       ImportDeclaration(node) {
         const importPath = (node.source as any).value as string;
 
-        if (isRelative(importPath)) {
+        if (validator.isRelative(importPath)) {
           context.report({
             node,
             messageId: "noRelative",
@@ -58,14 +42,12 @@ export const rule: Rule.RuleModule = {
         }
 
         const currentFilePath = context.getFilename();
-        const currentLayer = getLayerFromPath(currentFilePath);
-        const importLayer = getImportLayer(importPath);
+        const currentLayer = validator.getLayerFromPath(currentFilePath);
+        const importLayer = validator.getImportLayer(importPath);
 
         if (!currentLayer || !importLayer) return;
-        if (!layers.includes(currentLayer) || !layers.includes(importLayer)) return;
 
-        const allowed = layerAccessRules[currentLayer];
-        if (!allowed.includes(importLayer)) {
+        if (!validator.isValidLayerImport(currentLayer, importLayer)) {
           context.report({
             node,
             messageId: "invalidImport",
