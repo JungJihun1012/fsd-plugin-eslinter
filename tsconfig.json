@@ -13,6 +13,7 @@
       "#config": ["fsd-config.ts"]
     }
   },
+  "module": "ESNext",
   "include": [
     "src/**/*",
     "fsd-config.js",

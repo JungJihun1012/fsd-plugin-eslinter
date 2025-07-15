@@ -1,5 +1,5 @@
 import tsParser from "@typescript-eslint/parser";
-import pluginFeatureSliced from '@conarti/eslint- plugin-feature-sliced';
+import pluginFeatureSliced from '@conarti/eslint-plugin-feature-sliced';
 
 export default [
   {
@@ -15,22 +15,22 @@ export default [
       }
     },
     plugins: {
-      "feature-sliced": pluginFeatureSliced,
+      'layers-slices': pluginFeatureSliced,
     },
     rules: {
-      "fsd/fsd-layer-import": ["error", {
+      "rules/layers-slices": ["error", {
         alias: '@',
-        cocnfigPath: "./fsd-config.json"
+        configPath: "./fsd-config.json",
+        testPatterns: [
+          '**/*.test.*',
+          '**/*.story.*',
+          '**/*.stories.*',
+          '**/*.spec.*'
+        ]
       }],
-      "testPatterns": [
-        '**/*.test.*',
-        '**/*.story.*',
-        '**/*.stories.*',
-        '**/*.spec.*'
-      ]
     },
     settings: {
-      'feature-sliced': {
+      featureSliced: {
         'fsdLayers': [
           'app',
           'pages',
